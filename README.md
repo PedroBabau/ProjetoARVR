@@ -183,9 +183,3 @@ Uma experiência de **Realidade Virtual** imersiva que transporta o utilizador p
 | Campo de Batalha | Zona de combate Jaburo | Retorno ao Hangar, Voltar à Colónia |
 
 ---
-
-## 🚀 Como Executar Localmente
-
-### Pré-requisitos
-- Python 3.x ou Node.js instalado
-- Navegador moderno (Chrome, Firefox, Edge, Safari)
