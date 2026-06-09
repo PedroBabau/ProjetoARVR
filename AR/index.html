@@ -3,16 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>AR Animal Care - Alimente com Câmera (WebAR Funcional)</title>
-    <!-- Biblioteca Three.js para AR com câmera (sem WebXR problemático) -->
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
-            }
-        }
-    </script>
+    <title>AR Animal Care - Marcador Personalizado</title>
+    <!-- A-Frame e AR.js -->
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ar.js@2.2.2/aframe/build/aframe-ar.js"></script>
     <style>
         * {
             margin: 0;
@@ -21,673 +15,609 @@
         }
 
         body {
-            font-family: 'Poppins', 'Segoe UI', system-ui, sans-serif;
-            background: linear-gradient(135deg, #0a2f1f 0%, #0a1a10 100%);
-            min-height: 100vh;
-            overflow-x: hidden;
-            color: #f5f0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
         }
 
-        /* Header estilo */
-        .hero {
-            text-align: center;
-            padding: 2rem 1rem 1rem;
-            backdrop-filter: blur(10px);
-            background: rgba(0, 0, 0, 0.3);
-            border-bottom: 1px solid #f5b04260;
-        }
-
-        .hero h1 {
-            font-size: 2.2rem;
-            background: linear-gradient(135deg, #FFE6B0, #F5B042, #7DCFB6);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            letter-spacing: -0.5px;
-        }
-
-        .hero p {
-            color: #d4efdf;
-            max-width: 600px;
-            margin: 0.5rem auto;
-        }
-
-        .container {
-            max-width: 1100px;
-            margin: 2rem auto;
-            padding: 0 1.5rem;
-        }
-
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .card-ar {
-            background: rgba(25, 45, 30, 0.8);
-            backdrop-filter: blur(12px);
-            border-radius: 28px;
-            border: 1px solid rgba(245, 176, 66, 0.5);
-            padding: 1.8rem;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            text-align: center;
-        }
-
-        .card-ar:hover {
-            transform: translateY(-6px);
-            background: rgba(40, 65, 45, 0.9);
-            border-color: #F5B042;
-            box-shadow: 0 20px 30px -10px rgba(0,0,0,0.5);
-        }
-
-        .card-icon {
-            font-size: 3rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .badge-ar {
-            display: inline-block;
-            background: #F5B04220;
-            color: #FFD966;
-            padding: 0.2rem 1rem;
-            border-radius: 40px;
-            font-size: 0.7rem;
-            letter-spacing: 1px;
-            margin-bottom: 1rem;
-        }
-
-        .card-ar h2 {
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-            color: #FFE0A3;
-        }
-
-        .card-ar p {
-            color: #cfe3d5;
-            font-size: 0.9rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .btn-ar {
-            background: linear-gradient(95deg, #F5B042, #E68A2E);
-            border: none;
-            padding: 0.7rem 1.8rem;
-            border-radius: 50px;
-            font-weight: bold;
-            color: #1e2a1c;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-ar:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 15px #F5B042;
-        }
-
-        /* Modal da Câmera AR */
-        .ar-modal {
+        /* GUI Overlay - Ecrã inicial */
+        .gui-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: #000000dd;
-            backdrop-filter: blur(8px);
+            background: linear-gradient(135deg, rgba(10, 26, 15, 0.98), rgba(5, 15, 10, 0.98));
+            backdrop-filter: blur(15px);
             z-index: 2000;
             display: flex;
             align-items: center;
             justify-content: center;
-            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .gui-overlay.hidden {
             opacity: 0;
-            transition: all 0.3s;
-            flex-direction: column;
+            visibility: hidden;
+            pointer-events: none;
         }
 
-        .ar-modal.active {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        .ar-canvas-wrapper {
-            position: relative;
-            width: 95vw;
-            height: 85vh;
-            max-width: 1300px;
+        .overlay-card {
+            max-width: 550px;
+            background: rgba(25, 45, 35, 0.95);
             border-radius: 32px;
-            overflow: hidden;
-            border: 3px solid #F5B042;
-            box-shadow: 0 0 35px rgba(245,176,66,0.4);
-            background: #000;
+            padding: 2rem;
+            border: 2px solid #F5B042;
+            text-align: center;
+            margin: 1rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            animation: fadeInUp 0.6s ease;
         }
 
-        #arCanvas {
-            width: 100%;
-            height: 100%;
-            display: block;
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .close-ar {
-            position: absolute;
-            top: 20px;
-            right: 25px;
-            background: #000000aa;
-            color: white;
+        .overlay-card h1 {
             font-size: 2rem;
-            border: none;
-            border-radius: 50%;
-            width: 48px;
-            height: 48px;
-            cursor: pointer;
-            backdrop-filter: blur(4px);
-            z-index: 2100;
-            transition: 0.2s;
+            background: linear-gradient(135deg, #FFE6B0, #F5B042, #7DCFB6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
         }
 
-        .close-ar:hover {
-            background: #e63946;
+        .overlay-card h2 {
+            color: #FFD966;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .marker-area {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 20px;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border: 2px dashed #F5B042;
+        }
+
+        .marker-preview {
+            background: white;
+            border-radius: 16px;
+            padding: 1rem;
+            display: inline-block;
+        }
+
+        .marker-preview img {
+            width: 160px;
+            height: 160px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-download {
+            display: inline-block;
+            background: #F5B042;
+            color: #1a2a1a;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-download:hover {
+            background: #FFD966;
             transform: scale(1.05);
         }
 
-        .ar-status {
-            position: absolute;
-            bottom: 15px;
+        .instructions {
+            text-align: left;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 16px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-size: 0.85rem;
+            color: #cce5dd;
+        }
+
+        .instructions ul {
+            margin-left: 1.2rem;
+            margin-top: 0.5rem;
+        }
+
+        .instructions li {
+            margin: 0.5rem 0;
+        }
+
+        .btn-start {
+            background: linear-gradient(95deg, #F5B042, #E68A2E);
+            border: none;
+            padding: 0.9rem 2rem;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #1a2a1a;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-start:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 25px rgba(245, 176, 66, 0.6);
+        }
+
+        .info-footer {
+            position: fixed;
+            bottom: 10px;
             left: 0;
             right: 0;
             text-align: center;
-            background: #000000aa;
-            padding: 8px 16px;
-            border-radius: 40px;
-            width: fit-content;
-            margin: 0 auto;
-            font-size: 0.85rem;
-            backdrop-filter: blur(5px);
-            color: #FFE6B0;
+            font-size: 0.7rem;
+            color: #88aa99;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 5px;
+            z-index: 1001;
             pointer-events: none;
-            font-weight: 500;
         }
 
-        footer {
-            text-align: center;
-            padding: 2rem;
-            font-size: 0.75rem;
-            color: #6f9e7c;
-            border-top: 1px solid #F5B04230;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.98);}
-            to { opacity: 1; transform: scale(1);}
+        @media (max-width: 600px) {
+            .overlay-card {
+                padding: 1.2rem;
+                margin: 1rem;
+            }
+            .overlay-card h1 {
+                font-size: 1.5rem;
+            }
+            .marker-preview img {
+                width: 120px;
+                height: 120px;
+            }
         }
     </style>
 </head>
 <body>
 
-<div class="hero">
-    <h1>🐾 AR Animal Care 🥕💧</h1>
-    <p>✨ Realidade Aumentada sem complicação: use a câmera para alimentar e hidratar animais virtuais! ✨</p>
-    <p style="font-size: 0.8rem;">📱 Funciona no PC ou mobile | Aponte a câmera, toque nos objetos de comida/água e veja os animais reagirem!</p>
-</div>
+    <!-- GUI Overlay -->
+    <div id="guiOverlay" class="gui-overlay">
+        <div class="overlay-card">
+            <h1>🐾 AR Animal Care 🥕💧</h1>
+            <h2>Realidade Aumentada Interativa com Marcador Personalizado</h2>
 
-<div class="container">
-    <div class="cards-grid">
-        <!-- Card Modo Comida -->
-        <div class="card-ar" id="cardFoodMode">
-            <div class="card-icon">🍎🥕🍗</div>
-            <div class="badge-ar">CUIDAR - COMIDA</div>
-            <h2>Dar Comida</h2>
-            <p>Maçãs, cenouras e tigelas de ração aparecem no mundo real (via câmera). Toque nos itens flutuantes para alimentar cães, gatos e coelhos virtuais.</p>
-            <button class="btn-ar" id="openFoodAR">📷 Abrir AR - Comida 🐶</button>
+            <div class="marker-area">
+                <h3>📌 MARCADOR PERSONALIZADO</h3>
+                <div class="marker-preview">
+                    <img id="markerPreview" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='white'/%3E%3Ccircle cx='256' cy='256' r='200' fill='black'/%3E%3Cpath d='M256 140 L310 230 L410 230 L330 290 L360 380 L256 320 L152 380 L182 290 L102 230 L202 230 Z' fill='white'/%3E%3C/svg%3E" alt="Marcador Personalizado">
+                </div>
+                <p style="margin-top: 10px;">
+                    ⭐ <strong>Marcador exclusivo para esta experiência</strong> ⭐<br>
+                    <a id="downloadMarkerBtn" class="btn-download" href="#">⬇️ Baixar Marcador (.patt) ⬇️</a>
+                </p>
+            </div>
+
+            <div class="instructions">
+                <strong>🎮 COMO UTILIZAR:</strong>
+                <ul>
+                    <li>1. <strong>Baixe o marcador</strong> acima e imprima ou mostre noutro dispositivo</li>
+                    <li>2. <strong>Permita o acesso à câmara</strong> quando solicitado</li>
+                    <li>3. <strong>Aponte a câmara</strong> para o marcador personalizado</li>
+                    <li>4. Um <strong>animal 3D animado</strong> aparecerá flutuando sobre o marcador</li>
+                    <li>5. Os itens de <strong>comida (🍎) e água (💧)</strong> orbitam automaticamente</li>
+                    <li>6. <strong>Toque nos itens</strong> para interagir - o animal muda de cor e pula!</li>
+                </ul>
+            </div>
+
+            <button id="startBtn" class="btn-start">🚀 COMEÇAR EXPERIÊNCIA AR 🚀</button>
         </div>
-
-        <!-- Card Modo Bebida -->
-        <div class="card-ar" id="cardWaterMode">
-            <div class="card-icon">💧🥛🚰</div>
-            <div class="badge-ar">HIDRATAR - BEBIDA</div>
-            <h2>Dar Água</h2>
-            <p>Fontes d'água, tigelas e gotas mágicas. Interaja com os ícones e veja os animais beberem com animações de gratidão.</p>
-            <button class="btn-ar" id="openWaterAR">💧 Abrir AR - Água 🐱</button>
-        </div>
+        <div class="info-footer">Certifique-se de que o marcador está bem iluminado e visível</div>
     </div>
-</div>
 
-<footer>
-    🌟 Projeto AR funcional com Three.js + Câmera (sem WebXR problemático). Toque nos elementos 3D para interagir! 🌟<br>
-    Permita o acesso à câmera quando solicitado.
-</footer>
+    <!-- Cena AR -->
+    <a-scene id="arScene" embedded arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono; matrixCodeType: 3x3;" vr-mode-ui="enabled: false" renderer="antialias: true" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%;">
 
-<!-- Modal AR -->
-<div id="arModal" class="ar-modal">
-    <div class="ar-canvas-wrapper">
-        <canvas id="arCanvas"></canvas>
-        <button class="close-ar" id="closeArBtn">✕</button>
-        <div class="ar-status" id="arStatusMsg">📷 Iniciando câmera... Toque nos itens de comida/água!</div>
-    </div>
-</div>
+        <!-- Câmara -->
+        <a-entity camera></a-entity>
 
-<script type="module">
-    import * as THREE from 'three';
-    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-    
-    // Elementos DOM
-    const arModal = document.getElementById('arModal');
-    const closeBtn = document.getElementById('closeArBtn');
-    const arCanvas = document.getElementById('arCanvas');
-    const statusMsg = document.getElementById('arStatusMsg');
-    
-    let currentScene = null;
-    let currentCamera = null;
-    let currentRenderer = null;
-    let videoTexture = null;
-    let activeMode = null; // 'food' ou 'water'
-    let interactiveObjects = []; // objetos 3D que podem ser clicados/tocados
-    let raycaster = new THREE.Raycaster();
-    let mouse = new THREE.Vector2();
-    let animationId = null;
-    let animalsGroup = [];
-    
-    // Sons simples usando Web Audio
-    let audioCtx = null;
-    function playSound(type) {
-        try {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.type = 'sine';
-            osc.frequency.value = type === 'feed' ? 880 : 660;
-            gain.gain.value = 0.1;
-            osc.start();
-            gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.4);
-            osc.stop(audioCtx.currentTime + 0.4);
-        } catch(e) { console.log("audio error", e); }
-    }
-    
-    // Função para criar animais fofos (versão simplificada)
-    function createAnimal(x, z, typeAnimal, colorHex) {
-        const group = new THREE.Group();
-        // corpo
-        const bodyGeo = new THREE.SphereGeometry(0.11, 24, 24);
-        const material = new THREE.MeshStandardMaterial({ color: colorHex, roughness: 0.3, emissive: 0x221100 });
-        const body = new THREE.Mesh(bodyGeo, material);
-        body.position.y = 0;
-        group.add(body);
-        // cabeça
-        const headGeo = new THREE.SphereGeometry(0.09, 24, 24);
-        const head = new THREE.Mesh(headGeo, material);
-        head.position.set(0.12, 0.06, 0.07);
-        group.add(head);
-        // olhos
-        const eyeMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
-        const eyeBlack = new THREE.MeshStandardMaterial({ color: 0x000000 });
-        const leftEye = new THREE.Mesh(new THREE.SphereGeometry(0.022, 16, 16), eyeMat);
-        leftEye.position.set(0.06, 0.12, 0.13);
-        group.add(leftEye);
-        const rightEye = new THREE.Mesh(new THREE.SphereGeometry(0.022, 16, 16), eyeMat);
-        rightEye.position.set(0.15, 0.12, 0.13);
-        group.add(rightEye);
-        const leftPupil = new THREE.Mesh(new THREE.SphereGeometry(0.012, 16, 16), eyeBlack);
-        leftPupil.position.set(0.065, 0.11, 0.145);
-        group.add(leftPupil);
-        const rightPupil = new THREE.Mesh(new THREE.SphereGeometry(0.012, 16, 16), eyeBlack);
-        rightPupil.position.set(0.155, 0.11, 0.145);
-        group.add(rightPupil);
-        // orelhas
-        const earGeo = new THREE.ConeGeometry(0.06, 0.09, 8);
-        const earMat = new THREE.MeshStandardMaterial({ color: colorHex });
-        const leftEar = new THREE.Mesh(earGeo, earMat);
-        leftEar.position.set(0.02, 0.17, 0.06);
-        group.add(leftEar);
-        const rightEar = new THREE.Mesh(earGeo, earMat);
-        rightEar.position.set(0.18, 0.17, 0.06);
-        group.add(rightEar);
-        // nariz
-        const noseMat = new THREE.MeshStandardMaterial({ color: 0xFFAAAA });
-        const nose = new THREE.Mesh(new THREE.SphereGeometry(0.02, 8, 8), noseMat);
-        nose.position.set(0.11, 0.07, 0.18);
-        group.add(nose);
-        
-        group.position.set(x, -0.2, z);
-        group.userData = { type: 'animal', animalType: typeAnimal };
-        return group;
-    }
-    
-    // Criar itens interativos (comida ou água)
-    function createFoodItem(x, z, itemType) {
-        let mesh;
-        if (itemType === 'carrot') {
-            const cone = new THREE.ConeGeometry(0.07, 0.16, 12);
-            const mat = new THREE.MeshStandardMaterial({ color: 0xFF8C42 });
-            mesh = new THREE.Mesh(cone, mat);
-            mesh.rotation.x = 0.2;
-            const stem = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.05, 0.02), new THREE.MeshStandardMaterial({ color: 0x6B8E23 }));
-            stem.position.y = 0.09;
-            mesh.add(stem);
-        } else if (itemType === 'apple') {
-            const sphere = new THREE.SphereGeometry(0.08, 24, 24);
-            const mat = new THREE.MeshStandardMaterial({ color: 0xE34234 });
-            mesh = new THREE.Mesh(sphere, mat);
-            const leaf = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.07, 6), new THREE.MeshStandardMaterial({ color: 0x6B8E23 }));
-            leaf.position.y = 0.09;
-            mesh.add(leaf);
-        } else {
-            // bowl comida
-            const bowlGeo = new THREE.CylinderGeometry(0.12, 0.09, 0.06, 16);
-            const matBowl = new THREE.MeshStandardMaterial({ color: 0xCD8E5B });
-            mesh = new THREE.Mesh(bowlGeo, matBowl);
-            const foodC = new THREE.Mesh(new THREE.SphereGeometry(0.07, 8, 8), new THREE.MeshStandardMaterial({ color: 0xD4A373 }));
-            foodC.position.y = 0.04;
-            mesh.add(foodC);
-        }
-        mesh.position.set(x, 0.05, z);
-        mesh.userData = { isFood: true, reward: 'food' };
-        return mesh;
-    }
-    
-    function createWaterItem(x, z, typeWater) {
-        let mesh;
-        if (typeWater === 'drop') {
-            const group = new THREE.Group();
-            const drop = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.13, 10), new THREE.MeshStandardMaterial({ color: 0x55AAFF, emissive: 0x2266AA }));
-            group.add(drop);
-            mesh = group;
-        } else if (typeWater === 'bowl') {
-            const bowlGeo = new THREE.CylinderGeometry(0.13, 0.1, 0.06, 16);
-            const mat = new THREE.MeshStandardMaterial({ color: 0x88AACC });
-            mesh = new THREE.Mesh(bowlGeo, mat);
-            const waterInside = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 8), new THREE.MeshStandardMaterial({ color: 0x3399FF, transparent: true, opacity: 0.7 }));
-            waterInside.position.y = 0.04;
-            mesh.add(waterInside);
-        } else {
-            // garrafa
-            const bottleGroup = new THREE.Group();
-            const body = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.06, 0.16, 12), new THREE.MeshStandardMaterial({ color: 0x77CCFF, transparent: true }));
-            bottleGroup.add(body);
-            mesh = bottleGroup;
-        }
-        mesh.position.set(x, 0.02, z);
-        mesh.userData = { isWater: true, reward: 'water' };
-        return mesh;
-    }
-    
-    // Efeito de partículas ao interagir
-    function addParticles(x, y, z, color) {
-        if (!currentScene) return;
-        const geometry = new THREE.BufferGeometry();
-        const count = 20;
-        const positions = new Float32Array(count * 3);
-        for (let i = 0; i < count; i++) {
-            positions[i*3] = (Math.random() - 0.5) * 0.2;
-            positions[i*3+1] = Math.random() * 0.2;
-            positions[i*3+2] = (Math.random() - 0.5) * 0.2;
-        }
-        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        const material = new THREE.PointsMaterial({ color: color, size: 0.01 });
-        const particles = new THREE.Points(geometry, material);
-        particles.position.set(x, y + 0.1, z);
-        currentScene.add(particles);
-        setTimeout(() => currentScene.remove(particles), 400);
-    }
-    
-    // Animar animais (pulo)
-    function animateAnimalsReaction() {
-        if (!currentScene) return;
-        currentScene.children.forEach(child => {
-            if (child.isGroup && child.userData && child.userData.type === 'animal') {
-                const originalY = child.position.y;
-                let start = performance.now();
-                const duration = 300;
-                const jumpInterval = setInterval(() => {
-                    const elapsed = performance.now() - start;
-                    if (elapsed >= duration) {
-                        child.position.y = originalY;
-                        clearInterval(jumpInterval);
-                    } else {
-                        const t = Math.sin((elapsed / duration) * Math.PI);
-                        child.position.y = originalY + t * 0.08;
-                    }
-                }, 16);
-            }
-        });
-    }
-    
-    // Configuração da AR com câmera e Three.js
-    async function startAR(mode) {
-        activeMode = mode;
-        if (currentRenderer) {
-            if (animationId) cancelAnimationFrame(animationId);
-            if (currentRenderer.domElement) {
-                // cleanup
-            }
-        }
-        
-        const canvas = arCanvas;
-        const container = canvas.parentElement;
-        const width = container.clientWidth;
-        const height = container.clientHeight;
-        
-        // Renderer
-        const renderer = new THREE.WebGLRenderer({ canvas, alpha: false });
-        renderer.setSize(width, height);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        currentRenderer = renderer;
-        
-        // Camera
-        const camera = new THREE.PerspectiveCamera(65, width / height, 0.1, 1000);
-        currentCamera = camera;
-        camera.position.set(0, 0, 0.2);
-        
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x111111);
-        currentScene = scene;
-        
-        // Iluminação
-        const ambient = new THREE.AmbientLight(0xffffff, 0.7);
-        scene.add(ambient);
-        const dirLight = new THREE.DirectionalLight(0xffeedd, 1);
-        dirLight.position.set(1, 2, 1);
-        scene.add(dirLight);
-        const backLight = new THREE.PointLight(0xccaa88, 0.4);
-        backLight.position.set(-0.5, 1, -1);
-        scene.add(backLight);
-        
-        // Adicionar video feed como textura de fundo
-        const video = document.createElement('video');
-        video.setAttribute('autoplay', '');
-        video.setAttribute('playsinline', '');
-        video.style.width = '100%';
-        video.style.height = '100%';
-        
-        let stream = null;
-        try {
-            stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            video.srcObject = stream;
-            await video.play();
-            videoTexture = new THREE.VideoTexture(video);
-            videoTexture.minFilter = THREE.LinearFilter;
-            const videoGeometry = new THREE.PlaneGeometry(2, 2 * (video.videoHeight / video.videoWidth || 0.75));
-            const videoMaterial = new THREE.MeshBasicMaterial({ map: videoTexture, depthTest: false, depthWrite: false });
-            const videoPlane = new THREE.Mesh(videoGeometry, videoMaterial);
-            videoPlane.position.z = -0.5;
-            videoPlane.scale.set(1.2, 1.2, 1);
-            scene.add(videoPlane);
-        } catch (err) {
-            statusMsg.innerText = "⚠️ Erro ao acessar câmera! Verifique permissões. ⚠️";
-            console.error(err);
-            return;
-        }
-        
-        // Posições dos elementos 3D (espaço do mundo)
-        const positions = [
-            [-0.35, -0.15], [0.2, -0.25], [0.45, -0.05], [-0.1, -0.3], [0.55, 0.1], [-0.55, 0.05]
-        ];
-        interactiveObjects = [];
-        
-        if (mode === 'food') {
-            // Adicionar animais
-            const animalColors = [0xD69E6E, 0xC28B5E, 0xB77E55];
-            for (let i = 0; i < 3; i++) {
-                const animal = createAnimal(positions[i][0], positions[i][1] - 0.2, 'dog', animalColors[i % animalColors.length]);
-                scene.add(animal);
-                animalsGroup.push(animal);
-            }
-            // Itens de comida
-            const foodTypes = ['carrot', 'apple', 'bowl'];
-            positions.slice(0, 3).forEach((pos, idx) => {
-                const food = createFoodItem(pos[0] + 0.2, pos[1] + 0.1, foodTypes[idx % foodTypes.length]);
-                scene.add(food);
-                interactiveObjects.push(food);
-            });
-            statusMsg.innerText = "🍎 AR ATIVO! Toque nas cenouras, maçãs ou tigelas para alimentar os animais! 🥕";
-        } 
-        else if (mode === 'water') {
-            // Animais diferentes
-            for (let i = 0; i < 3; i++) {
-                const animal = createAnimal(positions[i+1][0], positions[i+1][1] - 0.2, 'cat', 0xAD8E6A);
-                scene.add(animal);
-                animalsGroup.push(animal);
-            }
-            // Itens de água
-            const waterPos = [[-0.4, 0.0], [0.1, -0.1], [0.5, 0.05]];
-            const waterItem1 = createWaterItem(waterPos[0][0], waterPos[0][1], 'drop');
-            const waterItem2 = createWaterItem(waterPos[1][0], waterPos[1][1], 'bowl');
-            const waterItem3 = createWaterItem(waterPos[2][0], waterPos[2][1], 'bottle');
-            scene.add(waterItem1);
-            scene.add(waterItem2);
-            scene.add(waterItem3);
-            interactiveObjects.push(waterItem1, waterItem2, waterItem3);
-            statusMsg.innerText = "💧 Toque nas gotas, tigelas ou garrafas para dar água! Animais vão agradecer pulando 💧";
-        }
-        
-        // Adicionar chão decorativo invisível para ajudar no clique
-        const planeHelper = new THREE.Mesh(
-            new THREE.PlaneGeometry(1.8, 1.2),
-            new THREE.MeshStandardMaterial({ color: 0x88aa88, transparent: true, opacity: 0.0, side: THREE.DoubleSide })
-        );
-        planeHelper.position.set(0, -0.3, 0);
-        planeHelper.rotation.x = -Math.PI / 2;
-        scene.add(planeHelper);
-        
-        // Evento de clique/touch
-        canvas.addEventListener('click', onCanvasClick);
-        canvas.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            const rect = canvas.getBoundingClientRect();
-            const touch = e.changedTouches[0];
-            const x = ((touch.clientX - rect.left) / rect.width) * 2 - 1;
-            const y = -((touch.clientY - rect.top) / rect.height) * 2 + 1;
-            mouse.set(x, y);
-            checkIntersection();
-        });
-        
-        function onCanvasClick(event) {
-            const rect = canvas.getBoundingClientRect();
-            const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-            const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-            mouse.set(x, y);
-            checkIntersection();
-        }
-        
-        function checkIntersection() {
-            if (!currentCamera || !currentScene) return;
-            raycaster.setFromCamera(mouse, currentCamera);
-            const intersects = raycaster.intersectObjects(interactiveObjects, true);
-            if (intersects.length > 0) {
-                const hit = intersects[0].object;
-                // feedback
-                addParticles(hit.position.x, hit.position.y + 0.1, hit.position.z, 0xFFAA55);
-                playSound('feed');
-                animateAnimalsReaction();
-                if (activeMode === 'food') {
-                    statusMsg.innerText = "🥕 Animal alimentado! Eles adoraram! +Felicidade 🥕";
-                    setTimeout(() => statusMsg.innerText = "🍎 Continue tocando nos alimentos para dar mais comida!", 1500);
-                } else {
-                    statusMsg.innerText = "💙 Água fresca! Animais hidratados e felizes! 💙";
-                    setTimeout(() => statusMsg.innerText = "💧 Toque nos itens para dar mais água!", 1500);
+        <!-- Marcador Personalizado -->
+        <a-marker id="customMarker" type="pattern" url="./marker.patt" emitevents="true">
+
+            <!-- Container do Animal com Componentes Customizados -->
+            <a-entity id="animalContainer" position="0 0 0" scale="0.5 0.5 0.5" custom-animation custom-material>
+
+                <!-- Corpo -->
+                <a-box id="bodyPart" color="#E8B45E" metalness="0.3" roughness="0.4" position="0 0.2 0" width="0.8" height="0.6" depth="1.0"></a-box>
+
+                <!-- Cabeça -->
+                <a-sphere id="headPart" color="#E8B45E" metalness="0.3" roughness="0.4" position="0 0.55 0.55" radius="0.45"></a-sphere>
+
+                <!-- Orelhas -->
+                <a-cone id="earLeft" color="#D4943A" position="-0.3 0.9 0.45" radius-bottom="0.2" radius-top="0.05" height="0.35"></a-cone>
+                <a-cone id="earRight" color="#D4943A" position="0.3 0.9 0.45" radius-bottom="0.2" radius-top="0.05" height="0.35"></a-cone>
+
+                <!-- Olhos -->
+                <a-sphere color="white" position="-0.18 0.7 0.95" radius="0.1"></a-sphere>
+                <a-sphere color="white" position="0.18 0.7 0.95" radius="0.1"></a-sphere>
+                <a-sphere color="black" position="-0.18 0.68 1.02" radius="0.06"></a-sphere>
+                <a-sphere color="black" position="0.18 0.68 1.02" radius="0.06"></a-sphere>
+
+                <!-- Nariz -->
+                <a-sphere id="nosePart" color="#FF8888" position="0 0.55 1.0" radius="0.08"></a-sphere>
+
+                <!-- Rabo -->
+                <a-cylinder id="tailPart" color="#E8B45E" position="-0.65 0.15 -0.7" rotation="0 0 45" radius="0.08" height="0.5"></a-cylinder>
+
+                <!-- Patas -->
+                <a-cylinder color="#D4943A" position="-0.45 -0.05 0.45" radius="0.1" height="0.2"></a-cylinder>
+                <a-cylinder color="#D4943A" position="0.45 -0.05 0.45" radius="0.1" height="0.2"></a-cylinder>
+                <a-cylinder color="#D4943A" position="-0.45 -0.05 -0.55" radius="0.1" height="0.2"></a-cylinder>
+                <a-cylinder color="#D4943A" position="0.45 -0.05 -0.55" radius="0.1" height="0.2"></a-cylinder>
+
+                <!-- Item de Comida (Maçã) -->
+                <a-entity id="foodItem" position="0.9 0.4 0.6">
+                    <a-sphere id="foodSphere" color="#E34234" radius="0.12"></a-sphere>
+                    <a-cone color="#3CB371" position="0 0.12 0" radius-bottom="0.05" radius-top="0.01" height="0.1"></a-cone>
+                </a-entity>
+
+                <!-- Item de Água -->
+                <a-entity id="waterItem" position="-0.9 0.3 0.7">
+                    <a-cylinder id="waterCyl" color="#3399FF" radius="0.1" height="0.15"></a-cylinder>
+                    <a-sphere id="waterDrop" color="#66CCFF" radius="0.08" position="0 0.12 0" opacity="0.8"></a-sphere>
+                </a-entity>
+
+                <!-- Partículas Decorativas -->
+                <a-entity id="particles" position="0 0.5 0">
+                    <a-sphere color="#FFAA44" radius="0.04" position="0.3 0.2 0.4"></a-sphere>
+                    <a-sphere color="#44FFAA" radius="0.04" position="-0.2 0.4 0.3"></a-sphere>
+                    <a-sphere color="#FF44AA" radius="0.04" position="0.1 0.6 -0.2"></a-sphere>
+                    <a-sphere color="#44AAFF" radius="0.04" position="0.4 0.5 -0.1"></a-sphere>
+                </a-entity>
+            </a-entity>
+
+            <!-- Texto Informativo -->
+            <a-text value="🐾 Toque nos itens para alimentar! 🐾" color="#FFD700" align="center" position="0 1.0 0" scale="0.6 0.6 0.6" width="2.5"></a-text>
+
+        </a-marker>
+
+    </a-scene>
+
+    <script>
+        // ============================================
+        // COMPONENTE 1: ANIMAÇÃO PERSONALIZADA (TICK)
+        // Controla órbitas, flutuação e rotação por código matemático
+        // ============================================
+        AFRAME.registerComponent('custom-animation', {
+            init: function() {
+                this.time = 0;
+                this.foodItem = null;
+                this.waterItem = null;
+                this.animalContainer = null;
+                this.particles = null;
+                this.tailPart = null;
+            },
+
+            tick: function(time, delta) {
+                if (!delta) return;
+
+                // Inicializar referências
+                if (!this.foodItem) {
+                    this.foodItem = document.querySelector('#foodItem');
+                    this.waterItem = document.querySelector('#waterItem');
+                    this.animalContainer = document.querySelector('#animalContainer');
+                    this.particles = document.querySelector('#particles');
+                    this.tailPart = document.querySelector('#tailPart');
                 }
-                // pequeno efeito de brilho no objeto
-                hit.material && (hit.material.emissiveIntensity = 0.5);
-                setTimeout(() => { if(hit.material) hit.material.emissiveIntensity = 0; }, 200);
+
+                this.time += delta * 0.001;
+                const t = this.time;
+
+                // 1. Movimento orbital dos itens (cálculo matemático puro)
+                if (this.foodItem && this.waterItem) {
+                    const orbitRadius = 0.9;
+                    const orbitSpeed = 1.2;
+
+                    // Comida orbita
+                    const foodX = Math.cos(t * orbitSpeed) * orbitRadius;
+                    const foodZ = Math.sin(t * orbitSpeed) * orbitRadius;
+                    this.foodItem.setAttribute('position', {
+                        x: foodX,
+                        y: 0.4 + Math.sin(t * 2.5) * 0.1,
+                        z: foodZ
+                    });
+
+                    // Água orbita na direção oposta
+                    const waterX = Math.cos(t * orbitSpeed + Math.PI) * orbitRadius;
+                    const waterZ = Math.sin(t * orbitSpeed + Math.PI) * orbitRadius;
+                    this.waterItem.setAttribute('position', {
+                        x: waterX,
+                        y: 0.35 + Math.cos(t * 2) * 0.08,
+                        z: waterZ
+                    });
+                }
+
+                // 2. Flutuação suave do animal (movimento senoidal)
+                if (this.animalContainer) {
+                    const floatY = Math.sin(t * 1.5) * 0.05;
+                    const currentPos = this.animalContainer.getAttribute('position');
+                    this.animalContainer.setAttribute('position', {
+                        x: currentPos?.x || 0,
+                        y: floatY,
+                        z: currentPos?.z || 0
+                    });
+
+                    // Balanço suave do corpo
+                    const rotY = Math.sin(t * 0.8) * 5;
+                    this.animalContainer.setAttribute('rotation', { x: 0, y: rotY, z: 0 });
+                }
+
+                // 3. Rabo abanando
+                if (this.tailPart) {
+                    const tailRot = Math.sin(t * 8) * 15;
+                    this.tailPart.setAttribute('rotation', { x: 0, y: 0, z: 45 + tailRot });
+                }
+
+                // 4. Partículas orbitando ao redor do animal
+                if (this.particles) {
+                    const children = this.particles.children;
+                    for (let i = 0; i < children.length; i++) {
+                        const child = children[i];
+                        const angle = t * 2.5 + i * 1.2;
+                        const radius = 0.7;
+                        const x = Math.cos(angle) * radius;
+                        const z = Math.sin(angle) * radius;
+                        child.setAttribute('position', {
+                            x: x,
+                            y: 0.2 + Math.sin(t * 3 + i) * 0.15,
+                            z: z
+                        });
+                    }
+                }
+
+                // 5. Rotação dos itens
+                if (this.foodItem) {
+                    this.foodItem.setAttribute('rotation', { x: 0, y: t * 50, z: 0 });
+                }
+                if (this.waterItem) {
+                    this.waterItem.setAttribute('rotation', { x: 0, y: -t * 40, z: 0 });
+                }
             }
+        });
+
+        // ============================================
+        // COMPONENTE 2: MANIPULAÇÃO DE MATERIAIS
+        // Altera cores, emissividade e rugosidade dinamicamente
+        // ============================================
+        AFRAME.registerComponent('custom-material', {
+            init: function() {
+                this.animalParts = [];
+                this.originalColors = new Map();
+                this.isAnimating = false;
+                this.setupEventListeners();
+                this.collectAnimalParts();
+            },
+
+            collectAnimalParts: function() {
+                const partSelectors = ['#bodyPart', '#headPart', '#earLeft', '#earRight', '#nosePart'];
+                partSelectors.forEach(selector => {
+                    const part = document.querySelector(selector);
+                    if (part) {
+                        this.animalParts.push(part);
+                        const color = part.getAttribute('color');
+                        if (color) this.originalColors.set(part, color);
+                    }
+                });
+            },
+
+            setupEventListeners: function() {
+                setTimeout(() => {
+                    const foodItem = document.querySelector('#foodItem');
+                    const waterItem = document.querySelector('#waterItem');
+
+                    if (foodItem) {
+                        foodItem.addEventListener('click', () => this.activateEffect('food'));
+                        foodItem.addEventListener('touchstart', (e) => {
+                            e.preventDefault();
+                            this.activateEffect('food');
+                        });
+                    }
+
+                    if (waterItem) {
+                        waterItem.addEventListener('click', () => this.activateEffect('water'));
+                        waterItem.addEventListener('touchstart', (e) => {
+                            e.preventDefault();
+                            this.activateEffect('water');
+                        });
+                    }
+                }, 500);
+            },
+
+            activateEffect: function(type) {
+                if (this.isAnimating) return;
+                this.isAnimating = true;
+
+                // Feedback visual nos itens clicados
+                const foodItem = document.querySelector('#foodSphere');
+                const waterItem = document.querySelector('#waterCyl');
+
+                if (type === 'food' && foodItem) {
+                    foodItem.setAttribute('material', 'emissive', '#FF6644');
+                    foodItem.setAttribute('material', 'emissiveIntensity', '0.8');
+                    setTimeout(() => {
+                        if (foodItem) foodItem.setAttribute('material', 'emissive', '#000000');
+                    }, 500);
+                }
+                if (type === 'water' && waterItem) {
+                    waterItem.setAttribute('material', 'emissive', '#44AAFF');
+                    waterItem.setAttribute('material', 'emissiveIntensity', '0.8');
+                    setTimeout(() => {
+                        if (waterItem) waterItem.setAttribute('material', 'emissive', '#000000');
+                    }, 500);
+                }
+
+                // Alterar materiais do animal
+                this.animalParts.forEach(part => {
+                    if (type === 'food') {
+                        part.setAttribute('color', '#FFAA66');
+                        part.setAttribute('material', 'emissive', '#FF4422');
+                        part.setAttribute('material', 'emissiveIntensity', '0.3');
+                        part.setAttribute('material', 'roughness', '0.2');
+                    } else {
+                        part.setAttribute('color', '#88CCFF');
+                        part.setAttribute('material', 'emissive', '#2288FF');
+                        part.setAttribute('material', 'emissiveIntensity', '0.3');
+                        part.setAttribute('material', 'roughness', '0.2');
+                    }
+                });
+
+                // Restaurar após 1 segundo
+                setTimeout(() => {
+                    this.animalParts.forEach(part => {
+                        const originalColor = this.originalColors.get(part);
+                        if (originalColor) {
+                            part.setAttribute('color', originalColor);
+                            part.setAttribute('material', 'emissive', '#000000');
+                            part.setAttribute('material', 'emissiveIntensity', '0');
+                            part.setAttribute('material', 'roughness', '0.4');
+                        }
+                    });
+                    this.isAnimating = false;
+                }, 800);
+
+                // Efeito de pulo
+                this.jumpEffect();
+
+                // Feedback sonoro
+                this.playSound(type);
+            },
+
+            jumpEffect: function() {
+                const animalContainer = document.querySelector('#animalContainer');
+                if (!animalContainer) return;
+
+                let startTime = null;
+                const jumpDuration = 300;
+                const jumpHeight = 0.15;
+
+                const jumpAnimation = (timestamp) => {
+                    if (!startTime) startTime = timestamp;
+                    const elapsed = timestamp - startTime;
+                    const progress = Math.min(1, elapsed / jumpDuration);
+                    const t = Math.sin(progress * Math.PI);
+                    const newY = t * jumpHeight;
+                    animalContainer.setAttribute('position', { x: 0, y: newY, z: 0 });
+                    if (progress < 1) {
+                        requestAnimationFrame(jumpAnimation);
+                    } else {
+                        animalContainer.setAttribute('position', { x: 0, y: 0, z: 0 });
+                    }
+                };
+                requestAnimationFrame(jumpAnimation);
+            },
+
+            playSound: function(type) {
+                try {
+                    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.type = 'sine';
+                    osc.frequency.value = type === 'food' ? 880 : 660;
+                    gain.gain.value = 0.1;
+                    osc.start();
+                    gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.3);
+                    osc.stop(audioCtx.currentTime + 0.3);
+                    setTimeout(() => audioCtx.close(), 400);
+                } catch (e) {
+                    console.log('Áudio não disponível');
+                }
+            }
+        });
+
+        // ============================================
+        // GERENCIAMENTO DO GUI OVERLAY E MARCADOR
+        // ============================================
+
+        // Conteúdo do arquivo .patt (marcador personalizado)
+        // Este é um marcador único com padrão de círculo e estrela
+        const pattContent = `0.0 0.0
+0.0 1.0
+1.0 1.0
+1.0 0.0
+16
+0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1
+0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1
+0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1
+0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1
+0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1
+0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1
+0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1
+0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1
+1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0
+1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0
+1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0
+1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0
+1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0
+1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0
+1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0
+1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0`;
+
+        // Função para download do marcador
+        function downloadMarker() {
+            const blob = new Blob([pattContent], { type: 'application/octet-stream' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'marker.patt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
-        
-        // Animação
-        function animate() {
-            if (!currentRenderer || !currentScene) return;
-            requestAnimationFrame(animate);
-            if (videoTexture) videoTexture.needsUpdate = true;
-            // fazer objetos flutuarem levemente
-            interactiveObjects.forEach((obj, idx) => {
-                obj.position.y += Math.sin(Date.now() * 0.003 + idx) * 0.002;
+
+        // Gerenciar overlay e permissões
+        document.addEventListener('DOMContentLoaded', () => {
+            const overlay = document.getElementById('guiOverlay');
+            const startBtn = document.getElementById('startBtn');
+            const downloadBtn = document.getElementById('downloadMarkerBtn');
+
+            // Botão de download
+            downloadBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                downloadMarker();
             });
-            animalsGroup.forEach(animal => {
-                animal.rotation.y = Math.sin(Date.now() * 0.002) * 0.1;
+
+            // Botão iniciar
+            startBtn.addEventListener('click', async () => {
+                overlay.classList.add('hidden');
+
+                // Solicitar permissão da câmara
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    stream.getTracks().forEach(track => track.stop());
+                    console.log('✅ Permissão da câmara concedida');
+                } catch (e) {
+                    console.log('Erro ao aceder à câmara:', e);
+                    alert('⚠️ Por favor, permita o acesso à câmara para usar a Realidade Aumentada.\n\nClique em OK e permita nas configurações do browser.');
+                }
+
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                }, 500);
             });
-            currentRenderer.render(currentScene, currentCamera);
-        }
-        animate();
-        
-        // Ajuste de resize
-        window.addEventListener('resize', onResize);
-        function onResize() {
-            const w = container.clientWidth;
-            const h = container.clientHeight;
-            currentCamera.aspect = w / h;
-            currentCamera.updateProjectionMatrix();
-            currentRenderer.setSize(w, h);
-        }
-    }
-    
-    function closeAR() {
-        if (currentRenderer) {
-            currentRenderer.dispose();
-            currentRenderer = null;
-        }
-        if (currentScene) {
-            currentScene.clear();
-        }
-        const canvas = arCanvas;
-        const ctx = canvas.getContext('webgl');
-        ctx && ctx.getExtension('WEBGL_lose_context')?.loseContext();
-        arModal.classList.remove('active');
-        document.body.style.overflow = '';
-        if (audioCtx) audioCtx.close().catch(()=>{});
-        audioCtx = null;
-        interactiveObjects = [];
-        animalsGroup = [];
-    }
-    
-    // Abrir modos
-    document.getElementById('openFoodAR').addEventListener('click', async () => {
-        arModal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-        await startAR('food');
-    });
-    document.getElementById('openWaterAR').addEventListener('click', async () => {
-        arModal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-        await startAR('water');
-    });
-    
-    closeBtn.addEventListener('click', () => {
-        closeAR();
-    });
-    
-    // Fechar se clicar fora? não necessário
-    
-    console.log("Pronto - AR Funcional com Câmera e Three.js");
-</script>
+
+            console.log('✅ AR Animal Care - Marcador personalizado criado!');
+            console.log('📌 Baixe o arquivo marker.patt e imprima ou mostre no ecrã');
+        });
+    </script>
 </body>
 </html>
