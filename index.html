@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
     <title>XR Showcase | AR Animal Care + VR Gundam Hangar</title>
     <style>
         * {
@@ -20,7 +19,6 @@
             overflow-x: hidden;
         }
 
-        /* Fundo com partículas sutis */
         body::before {
             content: '';
             position: fixed;
@@ -39,7 +37,6 @@
             padding: 2rem 1.5rem 4rem;
         }
 
-        /* Header */
         .hero {
             text-align: center;
             padding: 3rem 1rem 2rem;
@@ -85,10 +82,9 @@
             font-size: 1.05rem;
         }
 
-        /* Grid cards */
         .projects-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
             gap: 2.5rem;
             margin: 3rem 0 2rem;
         }
@@ -249,7 +245,6 @@
             border-color: #F5B042;
         }
 
-        /* Seção de informações adicionais */
         .info-section {
             margin-top: 3rem;
             background: rgba(0, 0, 0, 0.3);
@@ -314,6 +309,7 @@
             .hero h1 { font-size: 2rem; }
             .container { padding: 1rem; }
             .project-card h2 { font-size: 1.5rem; }
+            .projects-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -325,7 +321,7 @@
                 <span class="hero-badge vr">🥽 VIRTUAL REALITY</span>
             </div>
             <h1>XR Immersive Lab</h1>
-            <p>Duas experiências interativas de realidade estendida: cuide de animais com AR e explore um hangar de Robô em VR.</p>
+            <p>Duas experiências imersivas de realidade estendida: cuide de animais com AR e explore um hangar Gundam em VR.</p>
         </div>
 
         <div class="projects-grid">
@@ -339,15 +335,17 @@
                         <span>📷</span> AUGMENTED REALITY
                     </div>
                     <h2>AR Animal Care</h2>
-                    <p>Alimente e dê água a animais virtuais usando sua câmera. Toque nos itens flutuantes e veja reações fofas em tempo real.</p>
+                    <p>Experiência de Realidade Aumentada baseada em marcador personalizado. Alimente e dê água a um animal 3D interativo.</p>
                     <ul class="feature-list">
-                        <li>Reconhecimento de câmera ao vivo com Three.js</li>
-                        <li>Animais 3D interativos (cães, gatos, coelhos)</li>
-                        <li>Itens de comida (maçã, cenoura) e água (gotas, tigelas)</li>
-                        <li>Feedback com partículas e efeitos sonoros</li>
+                        <li>Marcador personalizado (.patt) exclusivo</li>
+                        <li>GUI Overlay com instruções e download do marcador</li>
+                        <li>Animação por código (tick) - órbitas, flutuação, rotação</li>
+                        <li>Manipulação dinâmica de materiais (cores, emissividade, rugosidade)</li>
+                        <li>Interação por toque/clique com feedback visual e sonoro</li>
                     </ul>
                     <div class="btn-group">
                         <a href="./AR/index.html" class="btn btn-primary">🎯 Abrir AR Animal Care</a>
+                        <a href="#" class="btn btn-outline" id="infoArBtn">📖 Sobre</a>
                     </div>
                 </div>
             </div>
@@ -361,47 +359,71 @@
                     <div class="tag tag-vr">
                         <span>🥽</span> VIRTUAL REALITY
                     </div>
-                    <h2>VR Robô Hangar</h2>
-                    <p>Entre no hangar mecanizado e admire um Robô. Compatível com headsets VR ou navegador com mouse.</p>
+                    <h2>VR Gundam Hangar</h2>
+                    <p>Experiência de Realidade Virtual imersiva com cenários 360° e navegação por olhar (gaze).</p>
                     <ul class="feature-list">
-                        <li>Ambiente 3D imersivo com efeitos de glow e partículas</li>
-                        <li>Modelo Gundam personalizado com animações (sabre de luz, olhos pulsantes)</li>
-                        <li>Suporte a WebXR para Óculos VR (Meta Quest, HTC, etc.)</li>
-                        <li>Controles Orbit: arraste para olhar, zoom para detalhes</li>
+                        <li>Visor 360° com 3 cenários panorâmicos (Hangar, Colônia, Batalha)</li>
+                        <li>Componente customizado para gestão de troca de texturas</li>
+                        <li>Hotspots interativos com navegação por olhar (fusing 1.5s)</li>
+                        <li>Modelo Gundam 3D completo com animações por código</li>
+                        <li>Suporte a WebXR para headsets VR (Meta Quest, HTC Vive)</li>
                     </ul>
                     <div class="btn-group">
-                        <a href="./VR/index.html" class="btn btn-primary">🤖 Explorar Robô VR</a>
+                        <a href="./VR/index.html" class="btn btn-primary">🤖 Explorar Gundam VR</a>
+                        <a href="#" class="btn btn-outline" id="infoVrBtn">📖 Sobre</a>
                     </div>
                 </div>
             </div>
         </div>
+
+        <div class="info-section">
+            <h3>📁 Estrutura do Projeto</h3>
+            <div class="tech-stack">
+                <span class="tech-badge">📂 AR/index.html - Animal Care AR</span>
+                <span class="tech-badge">📂 VR/index.html - Gundam Hangar VR</span>
+                <span class="tech-badge">⚡ Three.js + A-Frame + AR.js</span>
+                <span class="tech-badge">🎨 CSS/HTML5 + WebXR</span>
+            </div>
+            <p style="font-size: 0.85rem; color: #bdd4db; margin-bottom: 1rem;">
+                ✅ <strong>Organização dos ficheiros:</strong><br>
+                <code style="background:#00000055; padding:2px 6px; border-radius:8px;">/ProjetoARVR/index.html</code> (esta página)<br>
+                <code style="background:#00000055; padding:2px 6px; border-radius:8px;">/ProjetoARVR/AR/index.html</code> (Animal Care AR)<br>
+                <code style="background:#00000055; padding:2px 6px; border-radius:8px;">/ProjetoARVR/VR/index.html</code> (Gundam VR)<br>
+                <code style="background:#00000055; padding:2px 6px; border-radius:8px;">/ProjetoARVR/README.md</code> (documentação)
+            </p>
+            <p style="font-size: 0.8rem; color: #aacbd6;">
+                💡 <strong>Notas importantes:</strong><br>
+                • Para a experiência AR, é necessário <strong>baixar o marcador (.patt)</strong> disponível na interface da aplicação.<br>
+                • A AR requer <strong>HTTPS ou localhost</strong> para acesso à câmara.<br>
+                • A VR funciona em desktop (arrastar mouse) e em headsets compatíveis com WebXR.<br>
+                • Ambos os projetos utilizam animações por código (tick) e manipulação dinâmica de materiais.
+            </p>
+        </div>
         <footer>
-            ✨ Projetos imersivos desenvolvidos com Three.js | AR com câmera ao vivo | VR com suporte WebXR ✨<br>
+            ✨ Projetos imersivos desenvolvidos com Three.js, A-Frame e AR.js | AR com marcador personalizado | VR com gaze navigation ✨<br>
             Clique nos cards e mergulhe em novas realidades.
         </footer>
     </div>
 
     <script>
-        // Modals simples de informação (alertas estilizados com mais detalhes)
         const infoArBtn = document.getElementById('infoArBtn');
         const infoVrBtn = document.getElementById('infoVrBtn');
 
         if (infoArBtn) {
             infoArBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                alert('🐾 AR Animal Care 🐾\n\n📌 Funcionalidades:\n• Câmera ao vivo com detecção de toque nos itens 3D.\n• Escolha entre modo "Comida" e "Água".\n• Animais reagem com pulinhos e efeitos sonoros.\n• Itens flutuantes: maçãs, cenouras, tigelas, gotas mágicas.\n\n🎮 Como usar:\n1. Permita o acesso à câmera.\n2. Toque nos objetos de comida/água que aparecem sobre o vídeo.\n3. Veja os animais pularem e se alimentarem.\n\n💡 Dica: Funciona em PC e dispositivos móveis.');
+                alert('🐾 AR Animal Care 🐾\n\n📌 Tecnologias:\n• A-Frame + AR.js\n• Marcador personalizado (.patt)\n• Componente customizado de animação (tick)\n• Manipulação dinâmica de materiais\n\n🎮 Como usar:\n1. Baixe o marcador na interface\n2. Imprima ou mostre noutro ecrã\n3. Permita o acesso à câmara\n4. Aponte para o marcador\n5. Toque nos itens de comida/água\n\n✨ Características:\n• Animal 3D com flutuação suave\n• Itens em órbita (cálculo matemático)\n• Cores e emissividade mudam ao interagir\n• Feedback sonoro e visual');
             });
         }
 
         if (infoVrBtn) {
             infoVrBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                alert('🤖 VR Gundam Hangar 🤖\n\n🚀 Características:\n• Ambiente 3D completo com hangar futurista e efeitos de iluminação dinâmica.\n• Modelo RX-78-2 inspirado em Gundam com braços, sabre de luz, boosters e olhos LED.\n• Sistema de partículas, glow (bloom) e névoa para imersão.\n\n🕹️ Controles:\n• Mouse/Tela: Arraste para rotacionar a câmera (OrbitControls).\n• Botão "ENTRAR NO MODO VR": Ative o headset (WebXR).\n• Compatível com Oculus Quest, HTC Vive e outros headsets WebXR.\n\n🎯 Dica: Mesmo sem óculos VR, explore o hangar arrastando o mouse.');
+                alert('🤖 VR Gundam Hangar 🤖\n\n📌 Tecnologias:\n• A-Frame + WebXR\n• Componente customizado Scene Manager\n• Navegação por olhar (gaze/fusing)\n\n🎮 Como usar (Desktop):\n• Arraste o mouse para olhar ao redor\n• Fixe o olhar nos hotspots coloridos por 1.5 segundos\n\n🎮 Como usar (Headset VR):\n• Clique no botão "ENTRAR NO MODO VR"\n• Olhe para os hotspots para teleportar\n\n🚀 Cenários disponíveis:\n• Hangar Principal (Gundam RX-78-2)\n• Colónia Espacial Side-7\n• Campo de Batalha de Jaburo');
             });
         }
 
-        // Pequeno efeito de log para boas vindas
-        console.log('🚀 XR Showcase carregado | Projetos: AR Animal Care & VR Gundam Hangar');
+        console.log('🚀 XR Showcase carregado | Projetos: AR Animal Care (marcador personalizado) & VR Gundam Hangar (gaze navigation)');
     </script>
 </body>
 </html>
