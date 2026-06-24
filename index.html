@@ -335,13 +335,13 @@
                         <span>📷</span> AUGMENTED REALITY
                     </div>
                     <h2>AR Animal Care</h2>
-                    <p>Experiência de Realidade Aumentada baseada em marcador personalizado. Alimente e dê água a um animal 3D interativo.</p>
+                    <p>Experiência de Realidade Aumentada baseada em marcador personalizado. Interaja com um animal 3D que reage a comida e água.</p>
                     <ul class="feature-list">
-                        <li>Marcador personalizado (.patt) exclusivo</li>
-                        <li>GUI Overlay com instruções e download do marcador</li>
-                        <li>Animação por código (tick) - órbitas, flutuação, rotação</li>
-                        <li>Manipulação dinâmica de materiais (cores, emissividade, rugosidade)</li>
-                        <li>Interação por toque/clique com feedback visual e sonoro</li>
+                        <li>Marcador personalizado (BARCODE e HIRO) com download</li>
+                        <li>GUI Overlay com instruções e pré-visualização</li>
+                        <li>Animação por código - flutuação, abanar do rabo, orelhas</li>
+                        <li>Manipulação dinâmica de materiais (cores, emissividade)</li>
+                        <li>Interação por toque/clique com feedback visual</li>
                     </ul>
                     <div class="btn-group">
                         <a href="./AR/index.html" class="btn btn-primary">🎯 Abrir AR Animal Care</a>
@@ -381,7 +381,7 @@
             <div class="tech-stack">
                 <span class="tech-badge">📂 AR/index.html - Animal Care AR</span>
                 <span class="tech-badge">📂 VR/index.html - Gundam Hangar VR</span>
-                <span class="tech-badge">⚡ Three.js + A-Frame + AR.js</span>
+                <span class="tech-badge">⚡ A-Frame + AR.js + Three.js</span>
                 <span class="tech-badge">🎨 CSS/HTML5 + WebXR</span>
             </div>
             <p style="font-size: 0.85rem; color: #bdd4db; margin-bottom: 1rem;">
@@ -393,14 +393,14 @@
             </p>
             <p style="font-size: 0.8rem; color: #aacbd6;">
                 💡 <strong>Notas importantes:</strong><br>
-                • Para a experiência AR, é necessário <strong>baixar o marcador (.patt)</strong> disponível na interface da aplicação.<br>
+                • Para a experiência AR, é necessário <strong>baixar o marcador</strong> disponível na interface.<br>
                 • A AR requer <strong>HTTPS ou localhost</strong> para acesso à câmara.<br>
                 • A VR funciona em desktop (arrastar mouse) e em headsets compatíveis com WebXR.<br>
                 • Ambos os projetos utilizam animações por código (tick) e manipulação dinâmica de materiais.
             </p>
         </div>
         <footer>
-            ✨ Projetos imersivos desenvolvidos com Three.js, A-Frame e AR.js | AR com marcador personalizado | VR com gaze navigation ✨<br>
+            ✨ Projetos imersivos desenvolvidos com A-Frame, AR.js e Three.js | AR com marcador personalizado | VR com gaze navigation ✨<br>
             Clique nos cards e mergulhe em novas realidades.
         </footer>
     </div>
@@ -412,7 +412,7 @@
         if (infoArBtn) {
             infoArBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                alert('🐾 AR Animal Care 🐾\n\n📌 Tecnologias:\n• A-Frame + AR.js\n• Marcador personalizado (.patt)\n• Componente customizado de animação (tick)\n• Manipulação dinâmica de materiais\n\n🎮 Como usar:\n1. Baixe o marcador na interface\n2. Imprima ou mostre noutro ecrã\n3. Permita o acesso à câmara\n4. Aponte para o marcador\n5. Toque nos itens de comida/água\n\n✨ Características:\n• Animal 3D com flutuação suave\n• Itens em órbita (cálculo matemático)\n• Cores e emissividade mudam ao interagir\n• Feedback sonoro e visual');
+                alert('🐾 AR Animal Care 🐾\n\n📌 Tecnologias:\n• A-Frame + AR.js\n• Marcador BARCODE (recomendado) e HIRO\n• Componente customizado de animação (tick)\n• Manipulação dinâmica de materiais\n\n🎮 Como usar:\n1. Baixe o marcador na interface\n2. Imprima ou mostre noutro ecrã\n3. Permita o acesso à câmara\n4. Aponte para o marcador\n5. Toque nos itens de comida/água\n\n✨ Características:\n• Gato 3D com flutuação suave\n• Movimentos naturais (rabo, orelhas, cabeça)\n• Cores mudam ao interagir\n• Feedback visual e sonoro');
             });
         }
 
