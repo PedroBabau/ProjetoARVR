@@ -2,31 +2,18 @@
 
 Este repositório contém duas experiências imersivas de Realidade Estendida (XR):
 
-1. **AR Animal Care** - Aplicação de Realidade Aumentada baseada em marcador personalizado para cuidar de um animal 3D
+1. **AR Animal Care** - Aplicação de Realidade Aumentada baseada em marcador personalizado (BARCODE e HIRO) para interagir com um gato 3D
 2. **VR Gundam Hangar** - Experiência de Realidade Virtual com cenários 360° e navegação por olhar (gaze)
-
----
-
-## 📁 Estrutura do Projeto
-
-
-ProjetoARVR/
-├── index.html # Página inicial para navegar entre os projetos
-├── README.md # Este arquivo
-├── AR/
-│ └── index.html # Projeto AR Animal Care
-└── VR/
-└── index.html # Projeto VR Robô Hangar
 
 ---
 
 ## 🐾 Projeto 1: AR Animal Care
 
 ### Descrição
-Uma experiência de **Realidade Aumentada** onde o utilizador pode interagir com um animal 3D através de um marcador personalizado. O sistema reconhece o marcador através da câmara e sobrepõe um animal animado que reage a toques nos itens de comida e água.
+Uma experiência de **Realidade Aumentada** onde o utilizador pode interagir com um gato 3D através de marcadores. O sistema reconhece o marcador através da câmara e sobrepõe um gato animado que reage a toques nos itens de comida e água.
 
 ### Tecnologias Utilizadas
-- **A-Frame** (v1.4.0) - Framework para realidade virtual na web
+- **A-Frame** (v1.2.0) - Framework para realidade virtual na web
 - **AR.js** (v2.2.2) - Biblioteca para Realidade Aumentada
 - **JavaScript puro** - Componentes customizados e lógica de interação
 - **HTML5/CSS3** - Interface de utilizador e estilização
@@ -35,61 +22,36 @@ Uma experiência de **Realidade Aumentada** onde o utilizador pode interagir com
 
 #### 1. Integração AR.js com A-Frame
 - Câmara do dispositivo configurada como fundo da aplicação
-- Deteção de marcadores em tempo real
+- Deteção de marcadores em tempo real (BARCODE e HIRO)
 - Renderização de objetos 3D sobre o marcador
 
-#### 2. Marcador Personalizado
-- Marcador do tipo `pattern` (padrão personalizado)
-- Arquivo `.patt` exclusivo gerado para este projeto
-- Disponível para download diretamente na interface
-- Padrão único com círculo e estrela para fácil reconhecimento
+#### 2. Marcadores Disponíveis
+- **BARCODE** (recomendado) - Mais fácil de detetar
+- **HIRO** - Marcador tradicional
+- Ambos disponíveis para download diretamente na interface
+- Pré-visualização dos marcadores no overlay inicial
 
 #### 3. GUI Overlay (Ecrã Inicial)
 - Interface HTML/CSS nativa sobreposta à câmara
 - Explicação do conceito do projeto
 - Instruções claras de utilização
-- Pré-visualização do marcador com link para download
+- Pré-visualização dos marcadores com botões de download
 - Botão "Começar" que remove o overlay e inicia a experiência
-
-#### 4. Animação por Código (Componente Tick)
-- Componente customizado `custom-animation` registado no A-Frame
-- Controlo do ciclo de atualização em tempo real
-- Comportamentos cinemáticos autónomos:
-  - **Movimento orbital**: Itens de comida e água orbitam o animal com velocidade variável
-  - **Flutuação suave**: Animal sobe e desce com movimento senoidal
-  - **Balanço do corpo**: Rotação suave do animal
-  - **Rabo abanando**: Movimento oscilatório do rabo
-  - **Partículas orbitantes**: Elementos decorativos em órbita
-  - **Rotação dos itens**: Comida e água rodam sobre si mesmos
-
-#### 5. Manipulação de Materiais
-- Componente customizado `custom-material` para alterações dinâmicas
-- Ao tocar nos itens interativos:
-  - Animal muda de cor (comida → laranja, água → azul)
-  - Emissividade aumenta para efeito de brilho
-  - Rugosidade diminui para acabamento mais brilhante
-  - Restauração automática após 800ms
-- Efeito de pulo do animal ao interagir
-- Feedback visual nos itens clicados (emissividade temporária)
-- Feedback sonoro (sintetizador Web Audio)
 
 ### Como Utilizar
 
 1. **Aceder à aplicação**: Abrir `AR/index.html` via servidor local (HTTPS ou localhost)
-2. **Ler instruções**: O overlay inicial explica o conceito e mostra o marcador
-3. **Baixar o marcador**: Clicar no botão "Baixar Marcador (.patt)"
+2. **Ler instruções**: O overlay inicial explica o conceito e mostra os marcadores
+3. **Baixar o marcador**: Clicar no botão "Baixar PNG" (BARCODE recomendado)
 4. **Imprimir ou exibir**: O marcador pode ser impresso ou mostrado noutro dispositivo
 5. **Iniciar experiência**: Clicar em "COMEÇAR EXPERIÊNCIA AR"
 6. **Permitir câmara**: Autorizar o acesso à câmara quando solicitado
 7. **Apontar para o marcador**: Posicionar o marcador à frente da câmara
-8. **Interagir**: Tocar nos itens de comida (maçã) ou água (taça)
-9. **Observar reações**: O animal muda de cor, pula e emite som
 
 ### Requisitos Técnicos
 - Navegador com suporte a WebRTC e WebGL (Chrome, Edge, Safari, Firefox)
 - **HTTPS ou localhost** (necessário para acesso à câmara)
 - Dispositivo com câmara (PC portátil, tablet ou smartphone)
-- O marcador `.patt` deve estar na mesma pasta do `index.html`
 
 ---
 
@@ -150,7 +112,6 @@ Uma experiência de **Realidade Virtual** imersiva que transporta o utilizador p
 - Luzes de preenchimento azul e vermelha
 - Pontos de luz dinâmicos com intensidade variável
 - Partículas flutuantes de energia
-- Efeito de glow/bloom (via pós-processamento)
 
 ### Como Utilizar
 
@@ -183,3 +144,48 @@ Uma experiência de **Realidade Virtual** imersiva que transporta o utilizador p
 | Campo de Batalha | Zona de combate Jaburo | Retorno ao Hangar, Voltar à Colónia |
 
 ---
+
+## 🚀 Como Executar Localmente
+
+### Com Live Server (Recomendado)
+1. Instale a extensão **Live Server** no VS Code
+2. Abra a pasta do projeto
+3. Clique com o botão direito em `index.html` → **Open with Live Server**
+
+### Com Python
+```bash
+# Python 3
+python -m http.server 8000
+
+# Python 2
+python -m SimpleHTTPServer 8000
+Aceda a http://localhost:8000
+
+Com Node.js
+bash
+npx serve
+📦 Publicação
+Página principal: GitHub Pages
+
+Jogos: itch.io (WebGL builds)
+
+AR: Disponível em ./AR/index.html
+
+VR: Disponível em ./VR/index.html
+
+👤 Autor
+PedroBPinheiro
+GitHub: PedroBabau
+itch.io: PedroBPinheiro
+
+📄 Licença
+Projeto desenvolvido para a disciplina de Experiências 3D Interativas.
+
+✅ Notas Finais
+A experiência AR utiliza marcadores BARCODE e HIRO com download disponível na interface
+
+A experiência VR suporta WebXR para headsets e mouse drag para desktop
+
+Ambos os projetos utilizam animações por código (tick) e manipulação dinâmica de materiais
+
+A AR requer HTTPS ou localhost para acesso à câmara
